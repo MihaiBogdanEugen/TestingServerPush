@@ -1,0 +1,87 @@
+﻿@model JobDetailsViewModel
+@{
+    this.ViewBag.Title = "Job #" + this.Model.Id;
+    var rowNo = 1;
+}
+
+<h2>@this.ViewBag.Title</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <h4>Details</h4>
+            <dl class="dl-horizontal">
+
+                <dt>@Html.DisplayNameFor(model => model.Name)</dt>
+                <dd>@Html.DisplayFor(model => model.Name)</dd>
+
+                <dt>@Html.DisplayNameFor(model => model.AddedAtAsText)</dt>
+                <dd>@Html.DisplayFor(model => model.AddedAtAsText)</dd>
+
+                <dt>@Html.DisplayNameFor(model => model.StatusName)</dt>
+                <dd id="status">@Html.DisplayFor(model => model.StatusName)</dd>
+
+                <dt>@Html.DisplayNameFor(model => model.Resolution)</dt>
+                <dd id="resolution"
+                    data-job="@Model.Id"
+                    data-subscribe="@(Model.IsInProgress)">@Html.DisplayFor(model => model.Resolution)</dd>
+
+            </dl>
+        </div>
+
+        @if (this.Model.Actions.Any())
+        {
+            <h4>Actions</h4>
+            <div class="row">
+                <table id="actions" class="table table-condensed table-hover table-responsive table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Added At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var action in this.Model.Actions)
+                        {
+                            <tr>
+                                <td>@(rowNo++).</td>
+                                <td>@Html.DisplayFor(modelItem => action.AddedAtAsText)</td>
+                                <td>@Html.DisplayFor(modelItem => action.Name)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="col-md-6">
+        <div id="map" style="height: 400px;"></div>
+    </div>
+</div>
+<p>
+    <a class="btn btn-default" href="@Url.Action("Index", "Home")">&larr; Back to List</a>
+</p>
+
+    @section page_js {
+
+        <script type="text/javascript">
+        var defaultLocation = @(this.ViewBag.DefaultLocation);
+        var detailsArgs = {
+            map: "map",
+            positionsAsJson: @(this.Model.PositionsAsPointsArray.AsJson()),
+            startPosition: {
+                lat: @(this.Model.PickupLocationLatitude),
+                lng: @(this.Model.PickupLocationLongitude)
+            },
+            endPosition: {
+                lat: @(this.Model.DeliveryLocationLatitude),
+                lng: @(this.Model.DeliveryLocationLongitude)
+            },
+        };
+        var googleMap;
+        var flightPlan;
+        </script>
+        @Scripts.Render("~/bundles/job-js")
+        <script type="text/javascript" async defer src="https://maps.googleapis.com/maps/api/js?key=@(this.ViewBag.GoogleMapsApiKey)&callback=initMap"></script>
+    }

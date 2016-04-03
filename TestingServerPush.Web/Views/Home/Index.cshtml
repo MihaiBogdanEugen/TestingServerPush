@@ -1,0 +1,44 @@
+﻿@model IEnumerable<JobListViewModel>
+@{
+    this.ViewBag.Title = "Jobs";
+    var rowNo = 1;
+}
+
+<h2>@this.ViewBag.Title</h2>
+
+<p>
+    <a class="btn btn-primary" href="@Url.Action("New", "Home")">New Task</a>
+</p>
+
+@if (this.Model.Any())
+{
+    <table class="table table-condensed table-hover table-responsive table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th>@Html.DisplayNameFor(model => model.AddedAtAsText)</th>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>@Html.DisplayNameFor(model => model.StatusName)</th>
+                <th>@Html.DisplayNameFor(model => model.Resolution)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@(rowNo++).</td>
+                    <td>@Html.DisplayFor(modelItem => item.AddedAtAsText)</td>
+                    <td>
+                        <a href="@Url.Action("Details", new {id = item.Id})">@Html.Raw(item.Name)</a>
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.StatusName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Resolution)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">There are no task yet. Try to create a new one!</div>
+}
