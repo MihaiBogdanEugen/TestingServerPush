@@ -1,4 +1,7 @@
-﻿using Microsoft.Owin;
+﻿using System;
+using Hangfire;
+using Hangfire.SqlServer;
+using Microsoft.Owin;
 using Owin;
 using TestingServerPush.Web;
 
@@ -9,7 +12,14 @@ namespace TestingServerPush.Web
     {
         public void Configuration(IAppBuilder app)
         {
+            app.MapSignalR();
 
+            GlobalConfiguration.Configuration.UseSqlServerStorage("DefaultConnection", new SqlServerStorageOptions
+            {
+                QueuePollInterval = TimeSpan.FromSeconds(5)
+            });
+            app.UseHangfireDashboard("/hangfire");
+            app.UseHangfireServer();
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Hangfire;
+using TestingServerPush.Web.Infrastructure.Jobs;
 using TestingServerPush.Web.Models;
 using TestingServerPush.Web.Properties;
 using TestingServerPush.Web.ViewModels;
@@ -98,10 +100,9 @@ namespace TestingServerPush.Web.Controllers
             this._dbContext.Jobs.Add(entity);
             await this._dbContext.SaveChangesAsync();
 
-            return this.RedirectToAction("Details", new
-            {
-                id = entity.Id
-            });
+            RecurringJob.AddOrUpdate<JobUpdater>("update-job-#" + entity.Id, x => x.Update(entity.Id), Cron.Minutely);
+
+            return this.RedirectToAction("Details", new {id = entity.Id});
         }
 
         protected override void Dispose(bool disposing)

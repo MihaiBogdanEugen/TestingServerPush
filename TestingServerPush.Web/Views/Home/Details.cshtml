@@ -63,9 +63,66 @@
     <a class="btn btn-default" href="@Url.Action("Index", "Home")">&larr; Back to List</a>
 </p>
 
-    @section page_js {
+@section page_js {
 
-        <script type="text/javascript">
+    <script src="~/signalr/hubs"></script>
+    <script>
+        $(function() {
+            $('#resolution[data-subscribe="True"]').each(function() {
+
+                var jobId = $(this).data('job');
+                var jobHub = $.connection.jobHub;
+
+                jobHub.client.update = function(id, status, resolution, actions, positions) {
+                    $('#status').html(status);
+                    $('#resolution').html(resolution);
+
+                    var tableRef = document.getElementById('actions').getElementsByTagName('tbody')[0];
+                    var rows = tableRef.rows;
+                    var i = rows.length;
+                    while (--i) {
+                        rows[i].parentNode.removeChild(rows[i]);
+                    }
+                    rows[0].parentNode.removeChild(rows[0]);
+
+                    var actionsArray = JSON.parse(actions);
+                    for (var j = 0; j < actionsArray.length; j++) {
+                        var action = actionsArray[j];
+
+                        var newRow = tableRef.insertRow(tableRef.rows.length);
+
+                        var newCell1 = newRow.insertCell(0);
+                        newCell1.appendChild(document.createTextNode("" + (j + 1) + "."));
+
+                        var newCell2 = newRow.insertCell(1);
+                        newCell2.appendChild(document.createTextNode("" + action.addedAtAsText));
+
+                        var newCell3 = newRow.insertCell(2);
+                        newCell3.appendChild(document.createTextNode("" + action.name));
+                    }
+
+                    if (flightPlan) {
+                        flightPlan.setMap(null);
+                    }
+
+                    flightPlan = new google.maps.Polyline({
+                        path: JSON.parse(positions),
+                        geodesic: true,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 3
+                    });
+                    flightPlan.setMap(googleMap);
+                };
+
+                $.connection.hub.start().done(function() {
+
+                    jobHub.server.subscribe(jobId);
+                });
+            });
+        });
+    </script>
+    <script type="text/javascript">
         var defaultLocation = @(this.ViewBag.DefaultLocation);
         var detailsArgs = {
             map: "map",
@@ -81,7 +138,7 @@
         };
         var googleMap;
         var flightPlan;
-        </script>
-        @Scripts.Render("~/bundles/job-js")
-        <script type="text/javascript" async defer src="https://maps.googleapis.com/maps/api/js?key=@(this.ViewBag.GoogleMapsApiKey)&callback=initMap"></script>
-    }
+    </script>
+    @Scripts.Render("~/bundles/job-js")
+    <script type="text/javascript" async defer src="https://maps.googleapis.com/maps/api/js?key=@(this.ViewBag.GoogleMapsApiKey)&callback=initMap"></script>
+}

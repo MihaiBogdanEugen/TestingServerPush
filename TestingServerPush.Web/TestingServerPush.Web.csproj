@@ -234,6 +234,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\Extensions.cs" />
+    <Compile Include="Infrastructure\Hubs\JobHub.cs" />
+    <Compile Include="Infrastructure\Jobs\JobUpdater.cs" />
     <Compile Include="Migrations\201604030931597_AllModels.cs" />
     <Compile Include="Migrations\201604030931597_AllModels.Designer.cs">
       <DependentUpon>201604030931597_AllModels.cs</DependentUpon>
