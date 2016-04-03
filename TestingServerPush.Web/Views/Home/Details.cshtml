@@ -105,8 +105,30 @@
                         flightPlan.setMap(null);
                     }
 
+                    if (markers.length !== 0) {
+                        for (var t = 0; t < markers.length; t++) {
+                            markers[t].setMap(null);
+                        }
+                    }
+                    markers.length = 0;
+
+                    var positionsAsArray = JSON.parse(positions);
+
+                    for (var z = 0; z < positionsAsArray.length; z++) {
+                        markers.push(new google.maps.Marker({
+                            position: positionsAsArray[z],
+                            map: googleMap,
+                            icon: {
+                                url: 'http://maps.google.com/mapfiles/kml/shapes/cycling.png',
+                                scaledSize: new google.maps.Size(16, 16),
+                                origin: new google.maps.Point(0, 0),
+                                anchor: new google.maps.Point(8, 8)
+                            }
+                        }));
+                    }
+
                     flightPlan = new google.maps.Polyline({
-                        path: JSON.parse(positions),
+                        path: positionsAsArray,
                         geodesic: true,
                         strokeColor: '#FF0000',
                         strokeOpacity: 1.0,
@@ -138,6 +160,7 @@
         };
         var googleMap;
         var flightPlan;
+        var markers = [];
     </script>
     @Scripts.Render("~/bundles/job-js")
     <script type="text/javascript" async defer src="https://maps.googleapis.com/maps/api/js?key=@(this.ViewBag.GoogleMapsApiKey)&callback=initMap"></script>

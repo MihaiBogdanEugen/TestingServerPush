@@ -46,6 +46,7 @@ namespace TestingServerPush.Web.Controllers
                 .Jobs
                 .Include(x => x.Status)
                 .Include(x => x.Actions)
+                .Include(x => x.Positions)
                 .Select(x => new JobDetailsViewModel
                 {
                     Id = x.Id,
@@ -54,11 +55,20 @@ namespace TestingServerPush.Web.Controllers
                     AddedAt = x.AddedAt,
                     Resolution = x.Resolution,
                     IsInProgress = x.IsInProgress,
-                    Actions = x.Actions.Select(y => new ActionListViewModel
+                    Actions = x.Actions.OrderByDescending(yx => yx.AddedAt).Select(y => new ActionListViewModel
                     {
                         Id = y.Id,
                         Name = y.Name,
                         AddedAt = y.AddedAt,
+                    }),
+                    Positions = x.Positions.OrderBy(yx => yx.AddedAt).Select(y => new LatLngTime
+                    {
+                        AddedAt = y.AddedAt,
+                        Point = new LatLng
+                        {
+                            Lng = y.Longitude,
+                            Lat = y.Latitude
+                        }
                     })
                 })
                 .FirstOrDefaultAsync(x => x.Id == id.Value);
